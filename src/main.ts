@@ -1,29 +1,63 @@
 
-console.log(' start ')
 import Fastify from 'fastify'
+import { request, Server } from 'http'
+import routesIndex from './routes/routesIndex.js'
 
-const fastify = Fastify()
-
-
-fastify.get('/ping', async (request, reply)=> {
-    return 'pong\n'
+const apiServer = Fastify({
+    logger:true
 })
 
-const start = async () => {
+const test:string = 'pon!g'
+
+apiServer.get('/ping', async (request, reply)=> {
+    console.log(request)
+    return test
+})
+
+
+
+const testSchema = {
+    schema: {
+        headers: {
+            type:'object',
+            properties: {
+                authorization: {type:'string'}
+            },
+            required:['authorization']
+        },
+        body : {
+            type : 'object',
+            properties : {
+                id: {
+                    type:'string'
+                },
+                name : {type:'string'},
+                password : {type : 'string'},
+            },
+            required:['id','name']
+        },
+    }
+}
+
+apiServer.post('/article', testSchema, async(request, reply)=> {
+    console.log('!!  ', request)
+    return {hello:'world'}
+})
+
+
+
+//아래 url에서 ts-node 에러 확인하기
+//https://www.inflearn.com/course/lecture?inst=7c7a50f4&courseSlug=%EC%B0%A8%EC%84%B8%EB%8C%80-%EB%85%B8%EB%93%9C-%EB%B0%B1%EC%97%94%EB%93%9C-%EC%84%9C%EB%B2%84-%EA%B0%9C%EB%B0%9C&unitId=204790&tab=community&category=questionDetail&q=1182979
+const serverStart = async () => {
     try {
-        await fastify.listen({port:8083})
+        await apiServer.listen({port:8083})
         console.log('Server Start!!')
     } catch (error) {
-        fastify.log.error(error)
+        apiServer.log.error(error)
         process.exit(1)
     }
 }
 
-start()
+apiServer.register(routesIndex)
 
-
-console.log(' start 끝 ')
-
-// start 
-// Server Start!!
-//  start 끝 
+serverStart()
